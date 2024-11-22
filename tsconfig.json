@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "incremental": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "lib": [
+      "es2019"
+    ],
+    "target": "es2019",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@next-ts": [
+        "./src/next-ts/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "global.d.ts",
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "./src/web/**/*"
+  ],
+  "tsc-alias": {
+    "resolveFullPaths": true
+  }
+}
