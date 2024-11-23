@@ -1,21 +1,15 @@
 import {ExampleRepository} from '@/server/repositories/example.repository';
-import {ControllerHandlerProps} from '@next-ts';
-import {exampleInsertSchema} from '@/shared/schemas/example.schemas';
 
 export class ExampleService {
-	async getValues({res}: ControllerHandlerProps) {
-		const values = await ExampleRepository.getValues();
-		res.success(values);
+	static async getValues() {
+		return await ExampleRepository.getValues();
 	};
 
-	async addValue({res, body}: ControllerHandlerProps<typeof exampleInsertSchema>) {
-		const data = await ExampleRepository.addValue(body.title);
-		res.status(201).success(data);
+	static async addValue(title: string) {
+		return await ExampleRepository.addValue(title);
 	};
 
-	async deleteValue({res, params}: ControllerHandlerProps) {
-		const {id} = params;
+	static async deleteValue(id: string) {
 		await ExampleRepository.deleteValue(id);
-		res.success();
 	}
 }
