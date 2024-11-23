@@ -1,8 +1,5 @@
 import express, {NextFunction, Request, RequestHandler, Response, Router} from 'express';
 import {z, ZodSchema} from 'zod';
-import * as console from 'node:console';
-import {config} from '@/next-ts';
-import {green, red} from '@/next-ts/utils/colors';
 
 const methods = ['get', 'post', 'put', 'delete', 'patch'] as const;
 type HttpMethod = typeof methods[number];
@@ -57,17 +54,6 @@ export class RouteBuilder<T> {
 		return this.router;
 	}
 
-	private devDecorate(controller: (request: Request, response: Response, next: NextFunction) => Promise<void>) {
-		return async (request: Request, response: Response, next: NextFunction) => {
-			const start = Date.now();
-			await controller(request, response, next);
-			const ms = Date.now() - start;
-			const success = response.statusCode >= 200 && response.statusCode < 400;
-			const status = success ? green(response.statusCode.toString()) : red(response.statusCode.toString());
-			console.log(` ${request.method} ${request.baseUrl} ${status} in ${ms}ms`);
-		};
-	}
-
 	private decorate(controller: ControllerHandlerType) {
 		return async (request: Request, response: Response, next: NextFunction) => {
 			try {
@@ -99,10 +85,7 @@ export class RouteBuilder<T> {
 		}
 
 		// @ts-ignore
-		const func = this.decorate(controllerMethod);
-
-		// @ts-ignore
-		this.router[method](fullPath, ...middlewares, config.dev ? this.devDecorate(func) : func);
+		this.router[method](fullPath, ...middlewares, this.decorate(controllerMethod));
 	}
 
 	private createHandlers() {
