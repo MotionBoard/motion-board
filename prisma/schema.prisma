@@ -7,7 +7,266 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
-  id    String @id @default(cuid())
-  title String
+enum ActivityCategory {
+  RUNNING
+  CYCLING
+  HIKING
+  WALKING
+  SWIMMING
+  MULTI_SPORT
+  STEPS
+  DIVING
+  WINTER_SPORTS
+  PARA_SPORTS
+  TEAM_SPORTS
+  RACKET_SPORTS
+  WATER_SPORTS
+  OTHER
+}
+
+enum ActivityType {
+  RUNNING
+  TRAIL_RUNNING
+  STREET_RUNNING
+  TRACK_RUNNING
+  TREADMILL_RUNNING
+  VIRTUAL_RUN
+  OBSTACLE_RUN
+  INDOOR_RUNNING
+  ULTRA_RUN
+  CYCLING
+  MOUNTAIN_BIKING
+  ROAD_BIKING
+  CYCLOCROSS
+  DOWNHILL_BIKING
+  TRACK_CYCLING
+  RECUMBENT_CYCLING
+  INDOOR_CYCLING
+  BMX
+  GRAVEL_CYCLING
+  VIRTUAL_RIDE
+  E_BIKE_MOUNTAIN
+  E_BIKE_FITNESS
+  HAND_CYCLING
+  INDOOR_HAND_CYCLING
+  HIKING
+  OTHER
+  MOUNTAINEERING
+  WIND_KITE_SURFING
+  HORSEBACK_RIDING
+  DRIVING_GENERAL
+  FLYING
+  WHITEWATER_RAFTING_KAYAKING
+  INLINE_SKATING
+  GOLF
+  HUNTING_FISHING
+  SKY_DIVING
+  RC_DRONE
+  ROCK_CLIMBING
+  HANG_GLIDING
+  WINGSUIT_FLYING
+  FLOOR_CLIMBING
+  STOP_WATCH
+  AUTO_RACING
+  BREATHWORK
+  E_SPORT
+  MOTORCYCLING
+  MOTOCROSS
+  ATV
+  TRANSITION
+  SWIM_TO_BIKE_TRANSITION
+  BIKE_TO_RUN_TRANSITION
+  RUN_TO_BIKE_TRANSITION
+  HUNTING
+  MEDITATION
+  DISC_GOLF
+  BOXING
+  ARCHERY
+  MIXED_MARTIAL_ARTS
+  OVERLAND
+  WALKING
+  CASUAL_WALKING
+  SPEED_WALKING
+  SWIMMING
+  LAP_SWIMMING
+  OPEN_WATER_SWIMMING
+  MULTI_SPORT
+  STEPS
+  DIVING
+  SINGLE_GAS_DIVING
+  MULTI_GAS_DIVING
+  GAUGE_DIVING
+  APNEA_DIVING
+  APNEA_HUNTING
+  CCR_DIVING
+  WINTER_SPORTS
+  SNOWMOBILING_WS
+  SNOW_SHOE_WS
+  SKATING_WS
+  BACKCOUNTRY_SKIING_SNOWBOARDING_WS
+  SKATE_SKIING_WS
+  CROSS_COUNTRY_SKIING_WS
+  RESORT_SKIING_SNOWBOARDING_WS
+  BACKCOUNTRY_SKIING
+  BACKCOUNTRY_SNOWBOARDING
+  RESORT_SKIING
+  RESORT_SNOWBOARDING
+  PARA_SPORTS
+  WHEELCHAIR_PUSH_RUN
+  WHEELCHAIR_PUSH_WALK
+  TEAM_SPORTS
+  CRICKET
+  RUGBY
+  ICE_HOCKEY
+  FIELD_HOCKEY
+  LACROSSE
+  VOLLEYBALL
+  ULTIMATE_DISC
+  SOFTBALL
+  SOCCER
+  AMERICAN_FOOTBALL
+  BASKETBALL
+  BASEBALL
+  RACKET_SPORTS
+  TABLE_TENNIS
+  PLATFORM_TENNIS
+  RACQUETBALL
+  SQUASH
+  BADMINTON
+  PICKLEBALL
+  PADDELBALL
+  TENNIS
+  WATER_SPORTS
+  BOATING
+  FISHING
+  KAYAKING
+  KITEBOARDING
+  OFFSHORE_GRINDING
+  PADDLING
+  WHITEWATER_RAFTING
+  ROWING
+  SAILING
+  STAND_UP_PADDLEBOARDING
+  SURFING
+  WATER_TUBING
+  WINDSURFING
+  WAKEBOARDING
+  WAKESURFING
+  WATERSKIING
+  SNORKELING
+}
+
+enum PrType {
+  RUN_1K
+  RUN_1MILE
+  RUN_5K
+  RUN_10K
+  RUN_HALF_MARATHON
+  RUN_MARATHON
+  RUN_FARTHEST
+  CYCLE_FARTHEST
+  CYCLE_MAX_ELEVATION
+  CYCLE_MAX_POWER
+  CYCLE_40K
+  STEPS_MAX_DAY
+  STEPS_MAX_WEEK
+  STEPS_MAX_MONTH
+  STEPS_LONGEST_STREAK
+  STEPS_CURRENT_STREAK
+  SWIM_LONGEST
+  SWIM_100M
+  SWIM_100YD
+  SWIM_400M
+  SWIM_500YD
+  SWIM_750M
+  SWIM_1000M
+  SWIM_1000YD
+  SWIM_1500M
+  SWIM_1650YD
+}
+
+enum Interval {
+  DAY
+  WEEK
+  MONTH
+  THREE_MONTH
+  SIX_MONTH
+  YEAR
+}
+
+enum ChartType {
+  LINE
+  BAR
+  PIE
+  STACKED_BAR
+}
+
+enum OnKey {
+  average_hr
+  distance
+  duration
+  elevation_gain
+  elevation_loss
+}
+
+model Activity {
+  id                        String           @id @default(cuid())
+  activity_id               String           @unique
+  activity_name             String
+  category                  ActivityCategory
+  type                      ActivityType
+  start_time                DateTime
+  end_time                  DateTime
+  duration                  Int
+  distance                  Float
+  elevation_gain            Float?
+  elevation_loss            Float?
+  activity_training_load    Float?
+  aerobic_training_effect   Float?
+  anaerobic_training_effect Float?
+  average_hr                Int?
+  max_hr                    Int?
+  average_speed             Float
+  max_speed                 Float
+}
+
+model Card {
+  id         String         @id @default(cuid())
+  title      String
+  sports     ActivityType[]
+  on         OnKey
+  intervals  Interval[]
+  chart_type ChartType
+}
+
+model User {
+  id           Int       @id
+  email        String
+  name         String
+  display_name String
+  avatar       String?
+  sex          String?
+  birth        DateTime?
+  weight       Float?
+  height       Float?
+  running_vo2  Float?
+  cycling_vo2  Float?
+}
+
+model Settings {
+  id               Int     @id
+  garmin_username  String
+  garmin_password  String
+  oauth            String?
+  hash             String
+  fully_refreshed  Boolean @default(false)
+  refresh_interval Int     @default(1800)
+}
+
+model PersonnalRecord {
+  id          String   @id @default(cuid())
+  type        PrType   @unique
+  value       Float
+  date        DateTime
+  activity_id String?
 }
