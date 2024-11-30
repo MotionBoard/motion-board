@@ -55,6 +55,5 @@ export async function apiLoader(): Promise<Router> {
 		res.error(404);
 	});
 
-
 	return router;
 }
