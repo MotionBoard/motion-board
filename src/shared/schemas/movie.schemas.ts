@@ -1,5 +1,5 @@
 import {z} from 'zod';
 
-export const exampleInsertSchema = z.object({
+export const movieInsertSchema = z.object({
 	title: z.string().min(1).max(255)
 });

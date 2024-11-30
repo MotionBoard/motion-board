@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Example {
+model Movies {
   id    String @id @default(cuid())
   title String
 }

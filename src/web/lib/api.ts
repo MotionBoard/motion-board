@@ -1,4 +1,6 @@
 import useSWR, {mutate, SWRConfiguration} from 'swr';
+import {toast} from 'sonner';
+import React from 'react';
 
 type ErrorType = {
 	status: number;
@@ -71,17 +73,40 @@ export function useGet<T>(url: string, opts?: {
 	}, swrOpts);
 }
 
-export function optimisticUpdate<T, C>(url: string,
-									   options: {
-										   fetcher: () => Promise<C>,
-										   optimisticData: C,
-										   setData: (prev: T, newData: C) => T
-									   }) {
-	mutate(url, async (dt: T) => {
-		const data = await options.fetcher();
-		return options.setData(dt, data);
+export async function optimisticUpdate<T, C>(url: string,
+											 options: {
+												 fetcher: Promise<C>,
+												 optimisticData: C,
+												 setData: (prev: T, newData: C) => T
+											 }) {
+	await mutate(url, async (currentData) => {
+		try {
+			const data = await options.fetcher;
+			return options.setData(currentData, data);
+		} catch {
+			return currentData;
+		}
 	}, {
-		optimisticData: (dt: T) => options.setData(dt, options.optimisticData)
+		optimisticData: (dt: T) => options.setData(dt, options.optimisticData),
+		revalidate: false
+	});
+}
+
+export async function optimisticRequest<T>(url: string,
+										   options: {
+											   fetcher: Promise<RequestReturn<any>>,
+											   setData: (prev: T) => T
+										   }) {
+	await mutate(url, async (currentData) => {
+		try {
+			await options.fetcher;
+			return options.setData(currentData);
+		} catch {
+			return currentData;
+		}
+	}, {
+		optimisticData: (dt: T) => options.setData(dt),
+		revalidate: false
 	});
 }
 
@@ -103,4 +128,28 @@ export async function put<T>(url: string, data: any): Promise<RequestReturn<T>> 
 
 export async function patch<T>(url: string, data: any): Promise<RequestReturn<T>> {
 	return request('PATCH', url, {data});
+}
+
+type PromiseTResult<Data = any> =
+	string
+	| React.ReactNode
+	| ((data: Data) => React.ReactNode | string | Promise<React.ReactNode | string>);
+
+export async function toastRequest<T>(req: () => Promise<RequestReturn<T>>, opts?: {
+	loading?: string | React.ReactNode;
+	success?: PromiseTResult<T>;
+	error?: PromiseTResult;
+	description?: PromiseTResult;
+	finally?: () => void | Promise<void>;
+}) {
+	const promise = new Promise(async (resolve, reject) => {
+		const {success, data} = await req();
+		if (success) {
+			resolve(data);
+			return;
+		}
+		reject();
+	});
+
+	return toast.promise(promise, opts).unwrap() as Promise<T>;
 }
