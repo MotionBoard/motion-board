@@ -46,7 +46,7 @@ export class RouteBuilder<T> {
 	}
 
 	addMiddleware(middlewares: RequestHandler[]) {
-		this.router.use(middlewares);
+		this.router.use(...middlewares.map(this.middlewareDecorator));
 		return this;
 	}
 
@@ -71,6 +71,16 @@ export class RouteBuilder<T> {
 		};
 	}
 
+	private middlewareDecorator(middleware: RequestHandler) {
+		return async (request: Request, response: Response, next: NextFunction) => {
+			try {
+				await middleware(request, response, next);
+			} catch (error) {
+				next(error);
+			}
+		};
+	}
+
 	private addRoute(
 		method: HttpMethod,
 		path: string,
@@ -85,7 +95,7 @@ export class RouteBuilder<T> {
 		}
 
 		// @ts-ignore
-		this.router[method](fullPath, ...middlewares, this.decorate(controllerMethod));
+		this.router[method](fullPath, ...middlewares.map(this.middlewareDecorator), this.decorate(controllerMethod));
 	}
 
 	private createHandlers() {
