@@ -1,5 +1,6 @@
 import express, {NextFunction, Request, RequestHandler, Response, Router} from 'express';
 import {z, ZodSchema} from 'zod';
+import {IUser} from '@/shared/types';
 
 const methods = ['get', 'post', 'put', 'delete', 'patch'] as const;
 type HttpMethod = typeof methods[number];
@@ -16,6 +17,7 @@ export type ControllerHandlerProps<TBody extends ZodSchema | null = null, TParam
 	res: Response;
 	req: Request;
 	next: NextFunction;
+	user?: IUser
 	body: TBody extends ZodSchema ? z.infer<TBody> : any;
 	params: TParams extends ZodSchema ? z.infer<TParams> : any;
 	query: TQuery extends ZodSchema ? z.infer<TQuery> : any;
@@ -46,7 +48,7 @@ export class RouteBuilder<T> {
 	}
 
 	addMiddleware(middlewares: RequestHandler[]) {
-		this.router.use(middlewares);
+		this.router.use(...middlewares.map(this.middlewareDecorator));
 		return this;
 	}
 
@@ -63,8 +65,19 @@ export class RouteBuilder<T> {
 					next,
 					body: request.body,
 					params: request.params,
-					query: request.query
+					query: request.query,
+					user: request.user
 				});
+			} catch (error) {
+				next(error);
+			}
+		};
+	}
+
+	private middlewareDecorator(middleware: RequestHandler) {
+		return async (request: Request, response: Response, next: NextFunction) => {
+			try {
+				await middleware(request, response, next);
 			} catch (error) {
 				next(error);
 			}
@@ -85,7 +98,7 @@ export class RouteBuilder<T> {
 		}
 
 		// @ts-ignore
-		this.router[method](fullPath, ...middlewares, this.decorate(controllerMethod));
+		this.router[method](fullPath, ...middlewares.map(this.middlewareDecorator), this.decorate(controllerMethod));
 	}
 
 	private createHandlers() {

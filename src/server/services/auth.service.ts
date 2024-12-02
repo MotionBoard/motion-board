@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import {env} from '@/env';
 import {SettingsRepository} from '@/server/repositories/settings.repository';
+import {IUser} from '@/shared/types';
 
 export class AuthService {
 	static async generateToken(res: Response) {
@@ -23,7 +24,7 @@ export class AuthService {
 
 	static async comparePassword(password: string) {
 		const settings = await SettingsRepository.getSettings();
-		if (!settings) {
+		if (!settings || !settings.hash) {
 			return false;
 		}
 		return bcrypt.compare(password, settings.hash);
@@ -34,8 +35,7 @@ export class AuthService {
 			return false;
 		}
 		try {
-			jwt.verify(token, process.env.JWT_SECRET!);
-			return true;
+			return jwt.verify(token, process.env.JWT_SECRET!) as IUser;
 		} catch {
 			return false;
 		}

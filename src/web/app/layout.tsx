@@ -7,7 +7,7 @@ import {Toaster} from 'sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
-	title: 'Next-TS'
+	title: 'Motion Board'
 };
 
 export default function RootLayout({children}: Readonly<{ children: ReactNode; }>) {
@@ -16,10 +16,12 @@ export default function RootLayout({children}: Readonly<{ children: ReactNode; }
 			  suppressHydrationWarning
 			  className={`bg-background antialiased ${GeistSans.className}`}>
 		<body>
-		<ThemeProvider attribute="class">
-			{children}
-			<Toaster/>
-		</ThemeProvider>
+		<div className={'min-h-screen h-screen p-4'}>
+			<ThemeProvider attribute="class">
+				{children}
+				<Toaster/>
+			</ThemeProvider>
+		</div>
 		</body>
 		</html>
 	);

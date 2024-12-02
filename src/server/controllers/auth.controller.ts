@@ -10,7 +10,7 @@ export class AuthController {
 			throw new ServerError(401, errors.INVALID_CREDENTIALS);
 		}
 		await AuthService.generateToken(res);
-		res.json({success: true});
+		res.success();
 	};
 
 	logout({res}: ControllerHandlerProps) {

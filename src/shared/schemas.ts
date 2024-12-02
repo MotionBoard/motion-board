@@ -1,16 +1,6 @@
 import {z} from 'zod';
 import {ActivityType, ChartType, Interval, OnKey} from '@prisma/client';
 
-export const onboardingSchema = z.object({
-	garmin_email: z.string().email().describe('Garmin Email'),
-	garmin_password: z.string().describe('Garmin Password'),
-	password: z.string().min(6),
-	password_confirmation: z.string().min(6).describe('Confirm Password')
-}).refine((data) => data.password === data.password_confirmation, {
-	message: 'Passwords must match.',
-	path: ['password_confirmation']
-});
-
 export const loginSchema = z.object({
 	password: z.string().min(6)
 });

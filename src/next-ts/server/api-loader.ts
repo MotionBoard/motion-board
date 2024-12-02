@@ -3,6 +3,7 @@ import fg from 'fast-glob';
 import path from 'node:path';
 import {config} from '@next-ts';
 import {green, red} from '@/next-ts/utils/colors';
+import cookie from 'cookie-parser';
 
 function trimSlashes(str: string): string {
 	return str.replace(/^\/+|\/+$/g, '');
@@ -24,6 +25,8 @@ export async function getRoutes() {
 
 export async function apiLoader(): Promise<Router> {
 	const router = Router();
+	router.use(cookie());
+
 	const files = await getRoutes();
 
 	if (config.dev) {

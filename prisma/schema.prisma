@@ -258,9 +258,9 @@ model Settings {
   garmin_username  String
   garmin_password  String
   oauth            String?
-  hash             String
+  hash             String?
   fully_refreshed  Boolean @default(false)
-  refresh_interval Int     @default(1800)
+  refresh_interval Int     @default(15)
 }
 
 model PersonnalRecord {
