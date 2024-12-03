@@ -1,4 +1,5 @@
 import prisma from '@/server/lib/prisma';
+import {Prisma} from '@prisma/client';
 
 export class UserRepository {
 	static async getUser() {
@@ -12,5 +13,18 @@ export class UserRepository {
 			}
 		});
 		return !!user;
+	}
+
+	static async updateUser({id, ...data}: Prisma.UserGetPayload<{}>) {
+		await prisma.user.upsert({
+			where: {
+				id: 1
+			},
+			update: data,
+			create: {
+				id: 1,
+				...data
+			}
+		});
 	}
 }

@@ -16,6 +16,7 @@ export class SettingsController {
 			garmin_password: body.password,
 			tokens
 		});
+		await GarminService.updateUserData();
 		res.success();
 	};
 

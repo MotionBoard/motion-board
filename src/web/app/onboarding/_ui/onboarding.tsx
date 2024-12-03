@@ -13,7 +13,8 @@ export function Onboarding({currentStep}: { currentStep: number }) {
 	const nextStep = () => setStep((prev) => prev + 1);
 
 	return <div className={'flex h-full w-full'}>
-		<div className={'h-full bg-muted rounded flex flex-col p-4 pr-10 max-w-md gap-8 max-lg:hidden'}>
+		<div
+			className={'h-full bg-muted dark:bg-gray-900 rounded flex flex-col p-4 pr-10 max-w-md gap-8 max-lg:hidden'}>
 			<h2 className={'text-xl font-semibold'}>Motion Board</h2>
 			<div className={'flex flex-col'}>
 				<Step title={'Garmin account'} description={'Provide your Garmin credentials'}
