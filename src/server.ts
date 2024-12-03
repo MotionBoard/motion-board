@@ -2,7 +2,6 @@ import {parse} from 'url';
 import next from 'next';
 import express, {NextFunction, Request, Response} from 'express';
 import figlet from 'figlet';
-import {createHttpTerminator, HttpTerminator} from 'http-terminator';
 import cors from 'cors';
 import {loadEnvConfig} from '@next/env';
 
@@ -21,7 +20,7 @@ const nextApp = next({
 	customServer: true
 });
 const handle = nextApp.getRequestHandler();
-let terminator: HttpTerminator;
+let server: any;
 
 if (config.dev) {
 	loadEnvConfig('.', config.dev);
@@ -57,15 +56,13 @@ nextApp.prepare()
 				}
 			});
 
-			const server = app.listen(config.port, async () => {
+			server = app.listen(config.port, config.host, async () => {
 				if (config.dev) {
 					console.log(cyan(figlet.textSync('NEXT TS', {font: 'Graffiti'})));
 				}
-				console.log(`\n> Server is running on http://localhost:${config.port} ${cyan('[' + (config.dev ? 'Development' : 'Production') + ' mode]')} ${(config.turbo && config.dev) ? magenta('[Turbo]') : ''}`
+				console.log(`\n> Server is running on http://${config.host}:${config.port} ${cyan('[' + (config.dev ? 'Development' : 'Production') + ' mode]')} ${(config.turbo && config.dev) ? magenta('[Turbo]') : ''}`
 				);
 			});
-
-			terminator = createHttpTerminator({server});
 		} catch (error) {
 			console.error(error);
 			process.exit(1);
@@ -80,8 +77,8 @@ process.on('exit', shutdown);
 
 async function shutdown() {
 	console.log(cyan('Server stopped'));
-	if (terminator) {
-		await terminator.terminate();
+	if (server) {
+		await server.close();
 	}
 	await nextApp.close();
 }
