@@ -1,5 +1,7 @@
 import {IUser} from '@/shared/types';
 
+export {}
+
 declare global {
 	namespace Express {
 		export interface Request {
